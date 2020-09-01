@@ -15,7 +15,7 @@ end
 
 ## MAIN FUNCTIONS
 
-function rot2(theta, units=nothing::String)
+function rot2(theta, units=nothing)
     # Creates an SO2 rotation
 
     if units==nothing
@@ -136,7 +136,7 @@ function isvec(v)
     return size(v, 2)
 end
 
-function trexp2(S, theta==nothing)
+function trexp2(S, theta=nothing)
     # Exponential of the so 2 or se 2 matrix TODO write skew function in ND
     if ishom2(S) || isvec(S)
         if (ishom2(S))

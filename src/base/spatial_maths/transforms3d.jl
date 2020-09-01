@@ -1,4 +1,4 @@
-CGe## Spatial Maths - transforms3d.jl
+## Spatial Maths - transforms3d.jl
 ## Contains functions to create and transform 3D rotation matrices and homogenous transformation matrices.
 
 using LinearAlgebra
@@ -184,10 +184,10 @@ end
 function isrot(R)
     d = size(R)
     if (ndims(R) >= 2)
-        if ~(all(d(1:2) == [3 3]))
-            return false
-        else
+        if (all(d[1:2] == (3,3)))
             return true
+        else
+            return false
         end
     else
         return false
@@ -204,7 +204,25 @@ function rpy2r(roll)
     end
 end
 
-function trplot(T, animFromOrigin=nothing)
+"""
+
+trplot(T, anim)
+
+
+
+"""
+
+function trplot(T, anim=nothing)
+
+    if (!ishom(T))
+        if (size(T) == (3,3))
+            T = [T [0;0;0]; 0 0 0 1]
+        else
+            error("ArrayType Error: ", "T must be in the homogeonous form")
+        end
+
+    end
+
     ## MESHCAT Render of a transform matrix
     vis = Visualizer()
     xArrow = ArrowVisualizer(vis["coordinateFrame"]["xArrow"])
@@ -222,15 +240,40 @@ function trplot(T, animFromOrigin=nothing)
     posX = T[1, 4]
     posY = T[2, 4]
     posZ = T[3, 4]
+    x = T * [1,0,0,0]
+    y = T * [0,1,0,0]
+    z = T * [0,0,1,0]
 
-    o = T * [0,0,0,1]
-    x = T * [1,0,0,1]
-    y = T * [0,1,0,1]
-    z = T * [0,0,1,1]
+    if (anim==nothing || anim==false)
+        #settransform!(vis["coordinateFrame"], Translation(posX, posY, posZ))
+        settransform!(xArrow, Point(T[1,4], T[2,4], T[3,4]), Vec(x[1], x[2], x[3]))
+        settransform!(yArrow, Point(T[1,4], T[2,4], T[3,4]), Vec(y[1], y[2], y[3]))
+        settransform!(zArrow, Point(T[1,4], T[2,4], T[3,4]), Vec(z[1], z[2], z[3]))
 
-    settransform!(xArrow, Point(posX, posY, posZ), Vec(x[1], x[2], x[3]))
-    settransform!(yArrow, Point(posX, posY, posZ), Vec(y[1], y[2], y[3]))
-    settransform!(zArrow, Point(posX, posY, posZ), Vec(z[1], z[2], z[3]))
+
+
+    elseif (anim==true)
+        anim = MeshCat.Animation()
+
+        atframe(anim, 0) do
+            settransform!(xArrow, Point(posX, posY, posZ), Vec(1, 0, 0))
+            settransform!(yArrow, Point(posX, posY, posZ), Vec(0, 1, 0))
+            settransform!(zArrow, Point(posX, posY, posZ), Vec(0, 0, 1))
+        end
+
+        atframe(anim, 30) do
+            settransform!(xArrow, Point(posX, posY, posZ), Vec(x[1], x[2], x[3]))
+            settransform!(yArrow, Point(posX, posY, posZ), Vec(y[1], y[2], y[3]))
+            settransform!(zArrow, Point(posX, posY, posZ), Vec(z[1], z[2], z[3]))
+        end
+
+
+
+        setanimation!(vis, anim)
+
+    else
+        error("Input Error: ", "Second Parameter must be either true or false")
+    end
 
     open(vis)
 end
