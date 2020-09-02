@@ -7,6 +7,10 @@ using Plots
 
 ## HELPER FUNCTIONS
 
+#=
+    squeeze function
+    -- Removes single dimensions from the shape of the given array
+=#
 function squeeze(A::AbstractArray)
     singleton_dims = tuple((d for d in 1:ndims(A) if size(A, d) == 1)...)
     return squeeze(A, singleton_dims)
@@ -15,6 +19,15 @@ end
 
 ## MAIN FUNCTIONS
 
+#=
+    rot2 function
+    input:
+        theta - double precision value of the angle supplied
+        units - a string either 'deg' (degrees) or 'rad' (radians) to
+        determine the type of degree that was inputted. Defaults to 'rad'.
+
+    -- Generates a SO2 rotation matrix
+=#
 function rot2(theta, units=nothing)
     # Creates an SO2 rotation
 
@@ -40,6 +53,16 @@ function rot2(theta, units=nothing)
     return R
 end
 
+
+#=
+    trot2 function
+    input:
+        theta - double precision value of the angle supplied
+        units - a string either 'deg' (degrees) or 'rad' (radians) to
+        determine the type of degree that was inputted. Defaults to 'rad'.
+
+    -- Generates a SE2 rotation matrix
+=#
 function trot2(theta, unit=nothing::String)
     # Creates SE2 pure rotation
 
@@ -49,6 +72,15 @@ function trot2(theta, unit=nothing::String)
     return T
 end
 
+
+#=
+    transl2 function
+    input:
+    x - x position of the translation
+    y - y position of the translation
+
+    -- Generates a SE2 translation matrix
+=#
 function transl2(x, y=nothing)
     # Creates SE2 pure translation, or translation from matrix
 
@@ -81,9 +113,15 @@ function transl2(x, y=nothing)
 
 end
 
+#=
+    ishom2 function
+    input:
+        T - input matrix
 
+    -- Tests if matrix belongs to SE2
+=#
 function ishom2(T)
-    # Tests if matrix belongs to SE2
+
 
     d = size(T)
 
@@ -101,9 +139,15 @@ function ishom2(T)
 end
 
 
+#=
+    isrot2 function
+    input:
+        R - input matrix
 
+    -- Test if matrix belongs to SO2
+=#
 function isrot2(R::Array)
-    # Test if matrix belongs to SO2
+
 
     h = false
     d = size(R)
@@ -181,9 +225,9 @@ function trplot2(T, animFromOrigin=nothing)
 
             diff = (T - wOrig)*(0.01*i)
             dAxes = wOrig + diff
-            o = dAxes * [0,0,1]
-            x = dAxes * [1,0,1] * 1
-            y = dAxes * [0,1,1] * 1
+            o = dAxes * [0,0, 1]
+            x = dAxes * [1,0, 1] * 1
+            y = dAxes * [0,1, 1] * 1
 
             plot([o[1],x[1]],[o[2],x[2]], xlim = (-2,2), ylim = (-2,2),arrow=true,label="X",size = (600, 600), display_type="gui", title="Axis Plot")
             plot!([o[1],y[1]],[o[2],y[2]],arrow=true, label="Y")

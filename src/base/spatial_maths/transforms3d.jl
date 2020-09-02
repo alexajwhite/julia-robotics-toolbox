@@ -18,6 +18,16 @@ end
 
 ## MAIN FUNCTIONS
 
+
+#=
+    rot2 function
+    input:
+        theta - double precision value of the angle supplied
+        units - a string either 'deg' (degrees) or 'rad' (radians) to
+        determine the type of degree that was inputted. Defaults to 'rad'.
+
+    -- Generates a SO2 rotation matrix
+=#
 function rotx(theta, units=nothing)
     # Creates an SO3 rotation about the X-axis
     if units==nothing
@@ -194,7 +204,7 @@ function isrot(R)
     end
 end
 
-function rpy2r(roll)
+function rpy2r(roll, pitch, yaw, unit, order)
     if size(roll)(1,:) == 3
         pitch = roll(:,2)
         yaw = roll(:,3)
@@ -204,13 +214,31 @@ function rpy2r(roll)
     end
 end
 
-"""
+function rpy2tr(roll, pitch, yaw, unit, order)
+    ## TODO
+end
 
-trplot(T, anim)
+function trnorm(R)
+    if (ndims(R) == 3)
+        n = size(T)
+        TR = zeros(n)
+        for i in n[3]
+            TR[:,:,i] = trnorm(T[:,:,i]);
+        end
+    end
+    o = T(1:3,2); a = T(1:3,3);
+    n = cross(o, a);         % N = O x A
+    o = cross(a, n);         % O = A x N
+    R = [unit(n) unit(o) unit(a)];
+
+    if ishomog(T)
+        TR = rt2tr( R, T[1:3,4] );
+    elseif isrot(T)
+        TR = R;
+    end
+end
 
 
-
-"""
 
 function trplot(T, anim=nothing)
 
